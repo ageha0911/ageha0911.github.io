@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>統合カフェサイト</title>
+    <style>
+        /* 共通スタイル */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #faf3e0;  /* 明るいベージュ色 */
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        header {
+            background-color: #6b4f1d;  /* 濃い茶色 */
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            background-color: #8c5e3c;  /* 明るい茶色 */
+            text-align: center;
+            padding: 10px;
+        }
+        nav button {
+            background: none;
+            border: none;
+            color: white;
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .section {
+            display: none;
+            padding: 20px;
+        }
+        .active {
+            display: block;
+        }
+        .cafe-list {
+            margin: 20px 0;
+        }
+        .cafe-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .cafe-card button {
+            background-color: #6b4f1d;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .cafe-card button:hover {
+            background-color: #8c5e3c;
+        }
+        .cafe-detail {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .review-container {
+            margin-top: 20px;
+        }
+        .review {
+            background-color: #fff;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .rating-stars {
+            margin: 10px 0;
+        }
+        .rating-stars span {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ddd;
+        }
+        .rating-stars span.active {
+            color: gold;
+        }
+        /* ダークモード */
+        body.dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        .dark-mode header {
+            background-color: #2e7d32;
+        }
+        .dark-mode nav {
+            background-color: #444;
+        }
+        .dark-mode .cafe-card {
+            background-color: #555;
+            color: #fff;
+            border: 1px solid #666;
+        }
+        .dark-mode .cafe-detail {
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #555;
+        }
+        .dark-mode input[type="text"] {
+            background-color: #666;
+            color: #fff;
+            border: 1px solid #777;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>統合カフェ情報サイト</h1>
+        <button onclick="toggleDarkMode()">ダークモード切替</button>
+    </header>
+    <nav>
+        <button class="nav-link" data-target="home">ホーム</button>
+        <button class="nav-link" data-target="cafes">カフェ紹介</button>
+        <button class="nav-link" data-target="reviews">レビュー</button>
+        <button class="nav-link" data-target="favorites">お気に入り</button>
+    </nav>
+<!-- ログインフォーム -->
+<div id="loginSection" class="section">
+    <h2>ログイン</h2>
+    <input type="text" id="username" placeholder="ユーザー名">
+    <input type="password" id="password" placeholder="パスワード">
+    <button onclick="login()">ログイン</button>
+</div>
+
+<script>
+    let loggedIn = false;
+    const userData = {};  // 実際のアプリケーションではサーバーに保存
+
+    // ログイン処理
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // ダミーログイン処理
+        if (username === 'user' && password === 'password') {
+            loggedIn = true;
+            alert('ログイン成功');
+            document.getElementById('loginSection').style.display = 'none';
+            // ログイン後にカフェ情報を表示
+        } else {
+            alert('ユーザー名またはパスワードが間違っています');
+        }
+    }
+</script>
+
+    <!-- ホーム画面 -->
+    <section id="home" class="section active">
+        <h2>ようこそ！</h2>
+        <p>このサイトでは、素敵なカフェを検索し、レビューを投稿できます。</p>
+    </section>
+
+    <!-- カフェ紹介画面 -->
+    <section id="cafes" class="section">
+        <h2>カフェ紹介</h2>
+        <input type="text" id="searchBar" placeholder="カフェを検索...">
+        <div id="cafeList" class="cafe-list">
+            <div class="cafe-card" data-target="cafeA">
+                <h3>カフェA</h3>
+                <p>港区 - 静かな雰囲気</p>
+                <button onclick="addToFavorites('カフェA')">お気に入り</button>
+            </div>
+            <div class="cafe-card" data-target="cafeB">
+                <h3>カフェB</h3>
+                <p>渋谷区 - トレンディな空間</p>
+                <button onclick="addToFavorites('カフェB')">お気に入り</button>
+            </div>
+        </div>
+        <div id="cafeA" class="cafe-detail">
+            <h3>カフェAの詳細</h3>
+            <p>住所: 港区</p>
+            <p>特徴: 静かで落ち着いた雰囲気</p>
+            <p>おすすめメニュー: コーヒー、ケーキ</p>
+        </div>
+        <div id="cafeB" class="cafe-detail">
+            <h3>カフェBの詳細</h3>
+            <p>住所: 渋谷区</p>
+            <p>特徴: トレンディでモダンな空間</p>
+            <p>おすすめメニュー: 紅茶、サンドイッチ</p>
+        </div>
+        <!-- カフェ追加フォーム -->
+<h3>新しいカフェを追加</h3>
+<form id="addCafeForm">
+    <input type="text" id="cafeName" placeholder="カフェ名" required>
+    <input type="text" id="cafeLocation" placeholder="場所" required>
+    <textarea id="cafeDescription" placeholder="カフェの説明" required></textarea>
+    <button type="submit">カフェを追加</button>
+</form>
+
+<div id="newCafesList"></div>
+
+<script>
+    // カフェの追加
+    document.getElementById('addCafeForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const cafeName = document.getElementById('cafeName').value;
+        const cafeLocation = document.getElementById('cafeLocation').value;
+        const cafeDescription = document.getElementById('cafeDescription').value;
+
+        const newCafeCard = document.createElement('div');
+        newCafeCard.className = 'cafe-card';
+        newCafeCard.innerHTML = `
+            <h3>${cafeName}</h3>
+            <p>${cafeLocation} - ${cafeDescription}</p>
+        `;
+
+        document.getElementById('newCafesList').appendChild(newCafeCard);
+
+        // フォームをリセット
+        document.getElementById('addCafeForm').reset();
+    });
+</script>
+    </section>
+
+    <!-- レビュー機能 -->
+    <section id="reviews" class="section">
+        <h2>レビューを投稿する</h2>
+        <div class="rating-stars" id="ratingStars">
+            <span data-value="1">★</span>
+            <span data-value="2">★</span>
+            <span data-value="3">★</span>
+            <span data-value="4">★</span>
+            <span data-value="5">★</span>
+        </div>
+        <textarea id="reviewInput" placeholder="レビュー内容を記入してください"></textarea>
+        <button id="submitReview">投稿する</button>
+
+        <h3>投稿されたレビュー</h3>
+        <div id="reviewList" class="review-container"></div>
+    </section>
+
+    <!-- お気に入り画面 -->
+    <section id="favorites" class="section">
+        <h2>お気に入りカフェ</h2>
+        <div id="favoritesList" class="cafe-list"></div>
+    </section>
+
+    <script>
+        // ナビゲーションでセクション切り替え
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+                const target = this.getAttribute('data-target');
+                document.getElementById(target).classList.add('active');
+            });
+        });
+
+        // 検索機能
+        const searchBar = document.getElementById('searchBar');
+        searchBar.addEventListener('input', function() {
+            const filter = searchBar.value.toLowerCase();
+            document.querySelectorAll('.cafe-card').forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+
+        // カフェカードクリックで自動スクロール
+        document.querySelectorAll('.cafe-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // 星評価
+        let selectedRating = 0;
+        const stars = document.querySelectorAll('#ratingStars span');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = this.getAttribute('data-value');
+                stars.forEach(s => s.classList.remove('active'));
+                for (let i = 0; i < selectedRating; i++) {
+                    stars[i].classList.add('active');
+                }
+            });
+        });
+
+        // レビュー投稿機能
+        document.getElementById('submitReview').addEventListener('click', function() {
+            const reviewInput = document.getElementById('reviewInput');
+            const reviewText = reviewInput.value.trim();
+            if (reviewText === '' || selectedRating === 0) {
+                alert('レビュー内容と星評価を入力してください！');
+                return;
+            }
+
+            const reviewList = document.getElementById('reviewList');
+            const newReview = document.createElement('div');
+            newReview.className = 'review';
+            newReview.innerHTML = `
+                <p>${reviewText}</p>
+                <span>評価: ${'★'.repeat(selectedRating)} (${selectedRating} 星)</span>
+            `;
+            reviewList.appendChild(newReview);
+
+            reviewInput.value = '';
+            stars.forEach(s => s.classList.remove('active'));
+            selectedRating = 0;
+        });
+
+        // ダークモード切り替え
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // お気に入りに追加
+        const favorites = [];
+        function addToFavorites(cafeName) {
+            if (!favorites.includes(cafeName)) {
+                favorites.push(cafeName);
+                alert(`${cafeName} をお気に入りに追加しました`);
+                updateFavoritesList();
+            }
+        }
+
+        // お気に入りリスト更新
+        function updateFavoritesList() {
+            const favoritesList = document.getElementById('favoritesList');
+            favoritesList.innerHTML = '';
+            favorites.forEach(cafe => {
+                const cafeItem = document.createElement('div');
+                cafeItem.textContent = cafe;
+                favoritesList.appendChild(cafeItem);
+            });
+        }
+    </script>
+</body>
+</html>
